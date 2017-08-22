@@ -7,11 +7,11 @@ import java.util.ArrayList;
  */
 
 public class Passage {
-    private String name;
-    private int id;
-    private String text;
+    private String name = "";
+    private int id = 0;
     private boolean current = true;
-
+    
+    private ArrayList<String> text = new ArrayList<String>();
     private ArrayList<Link> links = new ArrayList<Link>();
 
     public Passage(){}
@@ -32,11 +32,11 @@ public class Passage {
         this.id = id;
     }
 
-    public String getText() {
+    public ArrayList<String> getText() {
         return text;
     }
 
-    public void setText(String text) {
+    public void setText(ArrayList<String> text) {
         this.text = text;
     }
 
