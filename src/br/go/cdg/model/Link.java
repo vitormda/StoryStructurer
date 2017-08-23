@@ -33,4 +33,9 @@ public class Link {
     public void setClicked(boolean clicked) {
         this.clicked = clicked;
     }
+    
+    @Override
+    public String toString() {
+    	return "{id: "+id+", text: "+text+", clicked: false}";
+    }
 }

@@ -3,7 +3,6 @@ package br.go.cdg.window;
 import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -20,8 +19,6 @@ public class PassageListPanel extends JPanel {
 	
 	private static final long serialVersionUID = -7114043901064497657L;
 	
-	private DefaultListModel<Passage> passageList = new DefaultListModel<Passage>();
-	
 	public PassageListPanel() {
 		super();
 		
@@ -29,7 +26,7 @@ public class PassageListPanel extends JPanel {
 		
 		setPreferredSize(new Dimension(200, 600));
 		
-		JList<Passage> passageJList = new JList<Passage>(passageList);
+		JList<Passage> passageJList = new JList<Passage>(MainPanel.passageList);
 		passageJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		passageJList.setLayoutOrientation(JList.VERTICAL);
 		passageJList.setVisibleRowCount(-1);
@@ -46,13 +43,5 @@ public class PassageListPanel extends JPanel {
 		passageListScroller.setPreferredSize(new Dimension(190, 500));
 		
 		add(passageListScroller);
-	}
-	
-	public void addPassageToList(Passage passage) {
-		passageList.addElement(passage);
-	}
-	
-	public void removePassageFromList(Passage passage) {
-		passageList.removeElement(passage);
 	}
 }

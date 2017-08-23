@@ -1,9 +1,6 @@
 package br.go.cdg.window;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -14,6 +11,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
@@ -35,9 +33,13 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 	private JTextField txNome;
 	private JTextField txId;
 	
-	private JPanel passageHolder;
+	private PassageHolder passageHolder;
 	private JPanel fragmentHolder;
 	private JPanel hookHolder;
+	
+	private JScrollPane scrollPane;
+	
+	private int fragmentComponentWidth = 565;
 	
 	public PassageEditingPanel() {
 		buildTop();
@@ -51,6 +53,8 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 	
 	private void buildTop() {
 		setLayout(null);
+		
+		addKeyListener(this);
 		
 		setBorder(BorderFactory.createEtchedBorder());
 		
@@ -78,26 +82,23 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 	}
 	
 	private void buildScrollArea() {
-		int componentWidth = 565;
+		passageHolder = new PassageHolder();
 		
-		passageHolder = new JPanel();
-		passageHolder.setLayout(null);
-		
-		fragmentHolder = new JPanel();
+		fragmentHolder = new PassageHolder();
 		fragmentHolder.setLayout(null);
-		fragmentHolder.setBounds(0, 0, componentWidth, 200);
 		fragmentHolder.setBackground(Color.GREEN);
 		
 		hookHolder = new JPanel();
 		hookHolder.setLayout(null);
-		hookHolder.setBounds(0, fragmentHolder.getHeight(), componentWidth, 100);
 		hookHolder.setBackground(Color.BLUE);
 		
 		passageHolder.add(fragmentHolder);
 		passageHolder.add(hookHolder);
 		
-		JScrollPane scrollPane = new JScrollPane(passageHolder, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setBounds(5, 25, 580, 485);
+		scrollPane = new JScrollPane(passageHolder, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setBounds(0, 25, 585, 485);
+		
+		scrollPane.setWheelScrollingEnabled(true);
 		
 		add(scrollPane);
 		
@@ -106,18 +107,40 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 	
 	private void buildInnerComponents() {
 		if (fragments.isEmpty()) {
-			FragmentEditingPanel frag = new FragmentEditingPanel(this);
-			
-			frag.setBounds(0,0,565,100);
-			
-			fragmentPanels.add(frag);
-			
-			fragmentHolder.add(frag);
+			addNewFragment("");
 		} else {
 			for (String fragment : passage.getText()) {
-				add(new FragmentEditingPanel(this, fragment));
+				addNewFragment(fragment);
 			}
 		}
+	}
+	
+	private void addNewFragment(String fragment) {
+		FragmentEditingPanel frag;
+		
+		if (fragment.equals("")) {
+			frag = new FragmentEditingPanel(this);
+		} else {
+			frag = new FragmentEditingPanel(this, fragment);
+		}
+		
+		frag.setBounds(0, (fragmentPanels.size()*100), 565, 100);
+		
+		fragmentPanels.add(frag);
+		
+		fragmentHolder.add(frag);
+		
+		fragmentHolder.setBounds(0, 0, fragmentComponentWidth, fragmentHolder.getComponentCount()*100);
+		hookHolder.setBounds(0, fragmentHolder.getHeight(), fragmentComponentWidth, 100);
+		passageHolder.setBounds(0, 0, fragmentComponentWidth, fragmentHolder.getHeight() + hookHolder.getHeight());
+		
+		revalidate();
+		repaint();
+		
+		JScrollBar vertical = scrollPane.getVerticalScrollBar();
+		vertical.setValue(vertical.getMaximum());
+		
+		frag.getFragmentField().requestFocusInWindow();
 	}
 
 	@Override
@@ -134,6 +157,16 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 			case "down":
 				
 				break;
+			case "edit":
+				System.out.println("1");
+				for (int i = 0; i < fragmentHolder.getComponentCount(); i++) {
+					FragmentEditingPanel frag = (FragmentEditingPanel) fragmentHolder.getComponent(i);
+					
+					if (frag.isEditing()) {						
+						frag.refreshEdit();
+					}
+				}
+				break;
 			default:
 				break;
 		}
@@ -141,13 +174,7 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 
 	@Override
 	public void keyPressed(KeyEvent ke) {
-		FragmentEditingPanel frag = new FragmentEditingPanel(this);
-		
-		frag.setBounds(5, (fragmentPanels.size()*100)+30, 500,80);
-		
-		fragmentPanels.add(frag);
-		
-		add(frag);
+		return;
 	}
 
 	@Override
@@ -157,6 +184,9 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 
 	@Override
 	public void keyTyped(KeyEvent ke) {
+		
+		addNewFragment("");
+		
 		return;
 	}
 }

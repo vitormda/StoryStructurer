@@ -13,6 +13,8 @@ import javax.swing.JTextField;
 public class TitlePanel extends JPanel {
 	private static final long serialVersionUID = -8399104425383533734L;
 	
+	private JTextField textStoryName;
+	
 	public TitlePanel() {
 		
 		setLayout(null);
@@ -21,14 +23,22 @@ public class TitlePanel extends JPanel {
 		
 		setPreferredSize(new Dimension(800, 30));
 		
-		JLabel labelSkillName = new JLabel("História:");
-		labelSkillName.setBounds(5, 5, 50, 20);
+		JLabel labelStoryName = new JLabel("História:");
+		labelStoryName.setBounds(5, 5, 50, 20);
 		
-		JTextField textSkillName = new JTextField();
-		textSkillName.setBounds(60, 5, 730, 20);
-		textSkillName.setName("storyName");
+		textStoryName = new JTextField();
+		textStoryName.setBounds(60, 5, 730, 20);
+		textStoryName.setName("storyName");
 		
-		add(labelSkillName);
-		add(textSkillName);
+		add(labelStoryName);
+		add(textStoryName);
+	}
+
+	public JTextField getTextStoryName() {
+		return textStoryName;
+	}
+
+	public void setTextStoryName(JTextField textStoryName) {
+		this.textStoryName = textStoryName;
 	}
 }

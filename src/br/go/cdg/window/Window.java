@@ -57,10 +57,7 @@ public class Window extends JFrame implements ActionListener {
 				//}
 				break;
 			case Globals.ACTION_SAVE:
-				setTitle(this.title.concat(" - Salvando"));
-				//if (save()) {
-					setTitle(this.title);
-				//}
+				save();
 				break;
 			case Globals.ACTION_EXIT:
 				exit();
@@ -68,6 +65,22 @@ public class Window extends JFrame implements ActionListener {
 			default:
 				break;
 		}
+	}
+	
+	private void save() {
+		//String name = main.getTitlePanel().getTextStoryName().getText();
+		
+		String json = "{";
+		
+		/*for (int i = 0; i < main.getPassageList().getSize(); i++) {			
+			json.concat(main.getPassageList().getElementAt(i).toString());
+			
+			if (i != main.getPassageList().getSize() - 1) {
+				json.concat(", ");
+			}
+		}*/
+		
+		json.concat("}");
 	}
 
 	private void exit() {

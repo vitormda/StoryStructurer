@@ -55,4 +55,31 @@ public class Passage {
     public void setCurrent(boolean current) {
         this.current = current;
     }
+    
+    @Override
+    public String toString() {
+    	String passage = "{ name: "+ name +", id: "+ id +", fragments: [";
+    	
+    	for (int i = 0; i < text.size(); i++) {
+    		passage = passage.concat(text.get(i));
+    		
+    		if (i != text.size() - 1) {
+    			passage = passage.concat(", ");
+    		}
+    	}
+    	
+    	passage = passage.concat("], links: [");
+    	
+    	for (int i = 0; i < links.size(); i++) {
+    		passage = passage.concat(links.get(i).toString());
+    		
+    		if (i != links.size() - 1) {
+    			passage = passage.concat(", ");
+    		}
+    	}
+    	
+    	passage = passage.concat("]}");
+    	
+    	return passage;
+    }
 }

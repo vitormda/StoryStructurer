@@ -2,7 +2,6 @@ package br.go.cdg.window;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,16 +20,19 @@ import javax.swing.border.BevelBorder;
 /**
  * @author vitor.almeida
  */
-public class FragmentEditingPanel extends JPanel implements ActionListener {
+public class FragmentEditingPanel extends JPanel implements ActionListener, KeyListener {
 	
 	private static final long serialVersionUID = -5570869092913621953L;
 	
 	private String fragment = "";
 	private boolean editing = true;
+	private boolean isEnterPressed = false;
 	
 	private JPanel editingPanel;
 	private JPanel showingPanel;
 	private JPanel buttonsPanel;
+	
+	private JPanel odin;
 	
 	private JLabel labelText;
 	private JTextArea fragmentField;
@@ -48,66 +50,34 @@ public class FragmentEditingPanel extends JPanel implements ActionListener {
 	private void build(PassageEditingPanel passageEditingPanel) {
 		//565
 		
+		setLayout(null);
+		
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		
-		setPreferredSize(new Dimension(580, 100));
+		setPreferredSize(new Dimension(565, 100));
 		
 		editingPanel = new JPanel();
+		editingPanel.setBounds(2, 2, 510, 96);
+		editingPanel.setLayout(null);
+
+		showingPanel = new JPanel();
+		showingPanel.setBounds(2, 2, 510, 96);
+		showingPanel.setLayout(null);
+		
+		buttonsPanel = new JPanel(null);
+		buttonsPanel.setBounds(515, 2, 40, 96);
 		
 		fragmentField = new JTextArea();
 		fragmentField.setText(fragment);
-		fragmentField.setPreferredSize(new Dimension(500, 80));
+		fragmentField.setBounds(0, 0, 510, 96);
 		fragmentField.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		fragmentField.setLineWrap(true);
-		fragmentField.addKeyListener(new KeyListener() {
-			
-			private boolean isEnterPressed = false;
-			
-			@Override
-			public void keyTyped(KeyEvent ke) {
-				if (ke.getKeyChar() == '\n') {
-					fragmentField.setText(fragmentField.getText().replace('\n', ' ').trim());
-					refreshEdit();
-					getParent().dispatchEvent(ke);
-				}
-			}
-			
-			@Override
-			public void keyReleased(KeyEvent ke) {
-				if (isEnterPressed) {
-					isEnterPressed = false;
-				}
-			}
-			
-			@Override
-			public void keyPressed(KeyEvent ke) {
-				if (ke.getKeyChar() == '\n') {
-					isEnterPressed = true;
-				}
-			}
-		});
-		
-		editingPanel.add(fragmentField);
-		editingPanel.setVisible(true);
-		
-		
-		showingPanel = new JPanel();
+		fragmentField.addKeyListener(this);
 		
 		labelText = new JLabel();
 		labelText.setPreferredSize(new Dimension(500, 70));
-		labelText.setBounds(5, 5, 500, 70);
+		labelText.setBounds(0, 0, 510, 96);
 		
-		
-		showingPanel.add(labelText);
-		showingPanel.setVisible(false);
-		
-		GridLayout gLayout = new GridLayout(3,2);
-		gLayout.setHgap(1);
-		gLayout.setVgap(1);
-		
-		
-		buttonsPanel = new JPanel(gLayout);
-		buttonsPanel.setBounds(560, 5, 40, 40);
 		
 		JButton editButton = new JButton();
 		JButton deleteButton = new JButton();
@@ -119,37 +89,44 @@ public class FragmentEditingPanel extends JPanel implements ActionListener {
 			Image editImg = ImageIO.read(getClass().getResource("/img/edit.png"));
 			editButton.setName("edit");
 			editButton.setIcon(new ImageIcon(editImg));
-			editButton.setPreferredSize(new Dimension(18, 18));
+			editButton.setBounds(2, 2, 18, 18);
 			editButton.addActionListener(this);
+			editButton.addActionListener(passageEditingPanel);
 			
 			Image deleteImg = ImageIO.read(getClass().getResource("/img/bin.png"));
 			deleteButton.setName("delete");
 			deleteButton.setIcon(new ImageIcon(deleteImg));
-			deleteButton.setPreferredSize(new Dimension(18, 18));
+			deleteButton.setBounds(2, 22, 18, 18);
 			deleteButton.addActionListener(passageEditingPanel);
 			
 			Image upImg = ImageIO.read(getClass().getResource("/img/up.png"));
 			upButton.setName("up");
 			upButton.setIcon(new ImageIcon(upImg));
-			upButton.setPreferredSize(new Dimension(18, 18));
+			upButton.setBounds(22, 2, 18, 18);
 			upButton.addActionListener(passageEditingPanel);
 			
 			Image downImg = ImageIO.read(getClass().getResource("/img/down.png"));
 			downButton.setName("down");
 			downButton.setIcon(new ImageIcon(downImg));
-			downButton.setPreferredSize(new Dimension(18, 18));
+			downButton.setBounds(22, 22, 18, 18);
 			downButton.addActionListener(passageEditingPanel);
 			
 			Image okImg = ImageIO.read(getClass().getResource("/img/accept.png"));
 			okButton.setName("ok");
 			okButton.setIcon(new ImageIcon(okImg));
-			okButton.setPreferredSize(new Dimension(18, 18));
+			okButton.setBounds(2, 42, 18, 18);
 			okButton.setBackground(Color.GREEN);
 			okButton.addActionListener(this);
 		    
 		} catch(Exception e) {
 			System.out.println(e.getLocalizedMessage());
 		}
+		
+		showingPanel.add(labelText);
+		showingPanel.setVisible(false);
+		
+		editingPanel.add(fragmentField);
+		editingPanel.setVisible(true);
 		
 		buttonsPanel.add(editButton);
 		buttonsPanel.add(upButton);
@@ -166,7 +143,7 @@ public class FragmentEditingPanel extends JPanel implements ActionListener {
 		}
 	}
 	
-	private void refreshEdit() {
+	public void refreshEdit() {
 		
 		if(editing) {
 			fragment = fragmentField.getText();
@@ -186,6 +163,10 @@ public class FragmentEditingPanel extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {
+		if (odin == null) {			
+			odin = (JPanel) getParent().getParent().getParent().getParent().getParent();
+		}
+		
 		JButton clicked = (JButton)ae.getSource();
 		
 		switch (clicked.getName()) {
@@ -195,6 +176,7 @@ public class FragmentEditingPanel extends JPanel implements ActionListener {
 				}
 				break;
 			case "edit":
+				System.out.println("2");
 				if (editing) {
 					return;
 				}
@@ -204,5 +186,49 @@ public class FragmentEditingPanel extends JPanel implements ActionListener {
 		}
 		
 		refreshEdit();
+	}
+	
+	@Override
+	public void keyTyped(KeyEvent ke) {
+		if (ke.getKeyChar() == '\n') {
+			fragmentField.setText(fragmentField.getText().replace('\n', ' ').trim());
+			refreshEdit();
+			
+			if (odin == null) {				
+				odin = (JPanel) getParent().getParent().getParent().getParent().getParent();
+			}
+			
+			odin.dispatchEvent(ke);
+		}
+	}
+	
+	@Override
+	public void keyReleased(KeyEvent ke) {
+		if (isEnterPressed) {
+			isEnterPressed = false;
+		}
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent ke) {
+		if (ke.getKeyChar() == '\n') {
+			isEnterPressed = true;
+		}
+	}
+
+	public boolean isEditing() {
+		return editing;
+	}
+
+	public void setEditing(boolean editing) {
+		this.editing = editing;
+	}
+
+	public JTextArea getFragmentField() {
+		return fragmentField;
+	}
+
+	public void setFragmentField(JTextArea fragmentField) {
+		this.fragmentField = fragmentField;
 	}
 }
