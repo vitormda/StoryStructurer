@@ -2,20 +2,19 @@ package br.go.cdg.window;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.BevelBorder;
+
+import br.go.cdg.utils.ButtonGenerator;
 
 /**
  * @author vitor.almeida
@@ -79,48 +78,32 @@ public class FragmentEditingPanel extends JPanel implements ActionListener, KeyL
 		labelText.setBounds(0, 0, 510, 96);
 		
 		
-		JButton editButton = new JButton();
-		JButton deleteButton = new JButton();
-		JButton upButton = new JButton();
-		JButton downButton = new JButton();
-		JButton okButton = new JButton();
+		JButton editButton = ButtonGenerator.getEditButton();
+		editButton.setName("editFragment");
+		editButton.setBounds(2, 2, 18, 18);
+		editButton.addActionListener(this);
+		editButton.addActionListener(passageEditingPanel);
 		
-		try {
-			Image editImg = ImageIO.read(getClass().getResource("/img/edit.png"));
-			editButton.setName("edit");
-			editButton.setIcon(new ImageIcon(editImg));
-			editButton.setBounds(2, 2, 18, 18);
-			editButton.addActionListener(this);
-			editButton.addActionListener(passageEditingPanel);
-			
-			Image deleteImg = ImageIO.read(getClass().getResource("/img/bin.png"));
-			deleteButton.setName("delete");
-			deleteButton.setIcon(new ImageIcon(deleteImg));
-			deleteButton.setBounds(2, 22, 18, 18);
-			deleteButton.addActionListener(passageEditingPanel);
-			
-			Image upImg = ImageIO.read(getClass().getResource("/img/up.png"));
-			upButton.setName("up");
-			upButton.setIcon(new ImageIcon(upImg));
-			upButton.setBounds(22, 2, 18, 18);
-			upButton.addActionListener(passageEditingPanel);
-			
-			Image downImg = ImageIO.read(getClass().getResource("/img/down.png"));
-			downButton.setName("down");
-			downButton.setIcon(new ImageIcon(downImg));
-			downButton.setBounds(22, 22, 18, 18);
-			downButton.addActionListener(passageEditingPanel);
-			
-			Image okImg = ImageIO.read(getClass().getResource("/img/accept.png"));
-			okButton.setName("ok");
-			okButton.setIcon(new ImageIcon(okImg));
-			okButton.setBounds(2, 42, 18, 18);
-			okButton.setBackground(Color.GREEN);
-			okButton.addActionListener(this);
-		    
-		} catch(Exception e) {
-			System.out.println(e.getLocalizedMessage());
-		}
+		JButton deleteButton = ButtonGenerator.getDeleteButton();
+		deleteButton.setName("deleteFragment");
+		deleteButton.setBounds(2, 22, 18, 18);
+		deleteButton.addActionListener(passageEditingPanel);
+		
+		JButton upButton = ButtonGenerator.getUpButton();
+		upButton.setName("upFragment");
+		upButton.setBounds(22, 2, 18, 18);
+		upButton.addActionListener(passageEditingPanel);
+		
+		JButton downButton = ButtonGenerator.getDownButton();
+		downButton.setName("downFragment");
+		downButton.setBounds(22, 22, 18, 18);
+		downButton.addActionListener(passageEditingPanel);
+		
+		JButton acceptButton = ButtonGenerator.getAcceptButton();
+		acceptButton.setName("acceptFragment");
+		acceptButton.setBounds(2, 42, 18, 18);
+		acceptButton.addActionListener(this);
+		
 		
 		showingPanel.add(labelText);
 		showingPanel.setVisible(false);
@@ -132,7 +115,7 @@ public class FragmentEditingPanel extends JPanel implements ActionListener, KeyL
 		buttonsPanel.add(upButton);
 		buttonsPanel.add(deleteButton);
 		buttonsPanel.add(downButton);
-		buttonsPanel.add(okButton);
+		buttonsPanel.add(acceptButton);
 		
 		add(showingPanel);
 		add(editingPanel);
@@ -167,18 +150,15 @@ public class FragmentEditingPanel extends JPanel implements ActionListener, KeyL
 			odin = (JPanel) getParent().getParent().getParent().getParent().getParent();
 		}
 		
-		System.out.println(fragmentField.getText());
-		
 		JButton clicked = (JButton)ae.getSource();
 		
 		switch (clicked.getName()) {
-			case "ok":
+			case "acceptFragment":
 				if (!editing) {
 					return;
 				}
 				break;
-			case "edit":
-				System.out.println("2");
+			case "editFragment":
 				if (editing) {
 					return;
 				}

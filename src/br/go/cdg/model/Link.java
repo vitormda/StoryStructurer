@@ -36,6 +36,6 @@ public class Link {
     
     @Override
     public String toString() {
-    	return "{id: "+id+", text: "+text+", clicked: false}";
+    	return "{id: "+id+", text: \""+text+"\", clicked: false}";
     }
 }

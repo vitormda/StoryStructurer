@@ -1,25 +1,23 @@
 package br.go.cdg.window;
 
 import java.awt.Color;
-import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import br.go.cdg.model.Link;
 import br.go.cdg.model.Passage;
+import br.go.cdg.utils.ButtonGenerator;
 
 /**
  * @author vitor.almeida
@@ -27,10 +25,6 @@ import br.go.cdg.model.Passage;
 public class PassageEditingPanel extends JPanel implements ActionListener, KeyListener {
 	
 	private static final long serialVersionUID = -5459688383379831692L;
-	
-	private ArrayList<String> fragments = new ArrayList<String>();
-	
-	private ArrayList<FragmentEditingPanel> fragmentPanels = new ArrayList<FragmentEditingPanel>();
 	
 	private Passage passage = new Passage();
 	
@@ -42,6 +36,8 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 	private PassageHolder hookHolder;
 	
 	private JScrollPane scrollPane;
+	
+	private JButton addHook;
 	
 	private int fragmentComponentWidth = 565;
 	
@@ -77,14 +73,7 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 		txNome.setText(passage.getName());
 		txNome.setBounds(150, 5, 415, 20);
 
-		JButton okButton = new JButton();
-		Image okImg;
-		try {
-			okImg = ImageIO.read(getClass().getResource("/img/accept.png"));
-			okButton.setIcon(new ImageIcon(okImg));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		JButton okButton = ButtonGenerator.getAcceptButton();
 		okButton.setName("editFinish");
 		okButton.setBounds(567, 5, 18, 18);
 		okButton.addActionListener(this);
@@ -109,8 +98,14 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 		hookHolder.setLayout(null);
 		hookHolder.setBackground(Color.BLUE);
 		
+		addHook = ButtonGenerator.getAddButton();
+		addHook.setBounds(0, fragmentHolder.getHeight() + hookHolder.getHeight(), fragmentComponentWidth, 18);
+		addHook.setName("addNewHook");
+		addHook.addActionListener(this);
+		
 		passageHolder.add(fragmentHolder);
 		passageHolder.add(hookHolder);
+		passageHolder.add(addHook);
 		
 		scrollPane = new JScrollPane(passageHolder, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setBounds(0, 25, 585, 485);
@@ -123,11 +118,17 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 	}
 	
 	private void buildInnerComponents() {
-		if (fragments.isEmpty()) {
+		if (passage.getText().isEmpty()) {
 			addNewFragment("");
 		} else {
 			for (String fragment : passage.getText()) {
 				addNewFragment(fragment);
+			}
+		}
+		
+		if (!passage.getLinks().isEmpty()) {
+			for (Link link : passage.getLinks()) {
+				addNewHook(link);
 			}
 		}
 	}
@@ -141,23 +142,41 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 			frag = new FragmentEditingPanel(this, fragment);
 		}
 		
-		frag.setBounds(0, (fragmentPanels.size()*100), 565, 100);
-		
-		fragmentPanels.add(frag);
+		frag.setBounds(0, (fragmentHolder.getComponentCount()*100), 565, 100);
 		
 		fragmentHolder.add(frag);
 		
+		update();
+		
+		frag.getFragmentField().requestFocusInWindow();
+	}
+	
+	private void addNewHook(Link link) {
+		HookEditingPanel hook;
+		
+		if (link == null) {
+			hook = new HookEditingPanel(this, new Link());
+		} else {
+			hook = new HookEditingPanel(this, link);
+		}
+		
+		hook.setBounds(0, (hookHolder.getComponentCount()*24), 565, 24);
+		
+		hookHolder.add(hook);
+		
+		update();
+	}
+	
+	private void update() {
 		fragmentHolder.setBounds(0, 0, fragmentComponentWidth, fragmentHolder.getComponentCount()*100);
-		hookHolder.setBounds(0, fragmentHolder.getHeight(), fragmentComponentWidth, 100);
-		passageHolder.setBounds(0, 0, fragmentComponentWidth, fragmentHolder.getHeight() + hookHolder.getHeight());
+		hookHolder.setBounds(0, fragmentHolder.getHeight(), fragmentComponentWidth, hookHolder.getComponentCount()*24);
+		addHook.setBounds(0, fragmentHolder.getHeight() + hookHolder.getHeight(), fragmentComponentWidth, 18);
+		passageHolder.setBounds(0, 0, fragmentComponentWidth, addHook.getY() + addHook.getHeight() + 40);
+		
+		passageHolder.scrollRectToVisible(new Rectangle(0, passageHolder.getHeight(), 1, 1));
 		
 		revalidate();
 		repaint();
-		
-		JScrollBar vertical = scrollPane.getVerticalScrollBar();
-		vertical.setValue(vertical.getMaximum());
-		
-		frag.getFragmentField().requestFocusInWindow();
 	}
 
 	@Override
@@ -165,17 +184,16 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 		JButton clicked = (JButton)ae.getSource();
 		
 		switch (clicked.getName()) {
-			case "delete":
+			case "deleteFragment":
 				
 				break;
-			case "up":
+			case "upFragment":
 				
 				break;
-			case "down":
+			case "downFragment":
 				
 				break;
-			case "edit":
-				System.out.println("1");
+			case "editFragment":
 				for (int i = 0; i < fragmentHolder.getComponentCount(); i++) {
 					FragmentEditingPanel frag = (FragmentEditingPanel) fragmentHolder.getComponent(i);
 					
@@ -184,19 +202,57 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 					}
 				}
 				break;
+			case "addNewHook":
+				for (int i = 0; i < hookHolder.getComponentCount(); i++) {
+					HookEditingPanel hook = (HookEditingPanel) hookHolder.getComponent(i);
+					
+					if (hook.isEditing()) {						
+						hook.refreshEdit();
+					}
+				}
+				addNewHook(new Link());
+				break;
+			case "cancelHook":
+				JPanel container = (JPanel) clicked.getParent().getParent();
+				
+				hookHolder.remove(container);
+				
+				update();
+				
+				break;
+			case "editHook":
+				for (int i = 0; i < hookHolder.getComponentCount(); i++) {
+					HookEditingPanel hook = (HookEditingPanel) hookHolder.getComponent(i);
+					
+					if (hook.isEditing()) {						
+						hook.refreshEdit();
+					}
+				}
+				break;
+			case "deleteHook":
+				
+				break;
 			case "editFinish":
 				passage.setId(Integer.parseInt(txId.getText()));
-				passage.setName(txNome.getText());
+				passage.setName("\""+txNome.getText()+"\"");
 				
 				ArrayList<String> text = new ArrayList<String>();
 				
 				for (int i = 0; i < fragmentHolder.getComponentCount(); i++) {
 					if (!((FragmentEditingPanel)fragmentHolder.getComponent(i)).getFragmentField().getText().isEmpty()) {						
-						text.add(((FragmentEditingPanel)fragmentHolder.getComponent(i)).getFragmentField().getText());
+						text.add("\""+((FragmentEditingPanel)fragmentHolder.getComponent(i)).getFragmentField().getText()+"\"");
 					}
 				}
 				
 				passage.setText(text);
+				
+				for (int i = 0; i < hookHolder.getComponentCount(); i++) {
+					Link link = ((HookEditingPanel)hookHolder.getComponent(i)).getLink();
+						
+					if (!link.getText().isEmpty()) {
+						passage.getLinks().add(link);
+					}
+				}
 				
 				System.out.println(passage.toString());
 				break;

@@ -3,6 +3,7 @@ package br.go.cdg.window;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -16,6 +17,8 @@ import br.go.cdg.utils.Globals;
 public class Window extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 6919893039373649602L;
 	
+	private static Class<? extends Window> window;
+	
 	private MainPanel main;
 	private MenuBar menu;
 	
@@ -23,6 +26,8 @@ public class Window extends JFrame implements ActionListener {
 
 	public Window(String title) {
 		super(title);
+		
+		window = getClass();
 		
 		this.title = title;
 		
@@ -40,8 +45,8 @@ public class Window extends JFrame implements ActionListener {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		JMenuItem pressed = (JMenuItem) arg0.getSource();
+	public void actionPerformed(ActionEvent ae) {
+		JMenuItem pressed = (JMenuItem) ae.getSource();
 		
 		switch(pressed.getName()) {
 			case Globals.ACTION_NEW_STORY:
@@ -90,5 +95,9 @@ public class Window extends JFrame implements ActionListener {
 			setVisible(false);
 			dispose();
 		}
+	}
+	
+	public static URL getResource(String resourceName) {
+		return window.getResource(resourceName);
 	}
 }
