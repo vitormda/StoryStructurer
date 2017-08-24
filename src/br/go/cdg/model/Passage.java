@@ -15,6 +15,11 @@ public class Passage {
     private ArrayList<Link> links = new ArrayList<Link>();
 
     public Passage(){}
+    
+    public Passage(int id, String name) {
+    	this.id = id;
+    	this.name = name;
+    }
 
     public String getName() {
         return name;
@@ -56,12 +61,11 @@ public class Passage {
         this.current = current;
     }
     
-    @Override
-    public String toString() {
-    	String passage = "{ name: "+ name +", id: "+ id +", fragments: [";
+    public String getJson() {
+    	String passage = "{ name: \""+ name +"\", id: "+ id +", fragments: [";
     	
     	for (int i = 0; i < text.size(); i++) {
-    		passage = passage.concat(text.get(i));
+    		passage = passage.concat("\""+text.get(i)+"\"");
     		
     		if (i != text.size() - 1) {
     			passage = passage.concat(", ");
@@ -81,5 +85,10 @@ public class Passage {
     	passage = passage.concat("]}");
     	
     	return passage;
+    }
+    
+    @Override
+    public String toString() {
+    	return String.valueOf(id).concat(" - ").concat(name);
     }
 }

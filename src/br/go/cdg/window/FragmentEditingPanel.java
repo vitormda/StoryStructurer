@@ -43,12 +43,10 @@ public class FragmentEditingPanel extends JPanel implements ActionListener, KeyL
 	public FragmentEditingPanel(PassageEditingPanel passageEditingPanel, String fragment) {
 		this.fragment = fragment;
 		
-		build(passageEditingPanel);		
+		build(passageEditingPanel);
 	}
 	
 	private void build(PassageEditingPanel passageEditingPanel) {
-		//565
-		
 		setLayout(null);
 		
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -176,7 +174,7 @@ public class FragmentEditingPanel extends JPanel implements ActionListener, KeyL
 			fragmentField.setText(fragmentField.getText().replace('\n', ' ').trim());
 			refreshEdit();
 			
-			if (odin == null) {				
+			if (odin == null) {
 				odin = (JPanel) getParent().getParent().getParent().getParent().getParent();
 			}
 			

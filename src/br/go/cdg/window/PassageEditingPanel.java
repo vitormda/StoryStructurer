@@ -1,6 +1,7 @@
 package br.go.cdg.window;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,12 +43,6 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 	private int fragmentComponentWidth = 565;
 	
 	public PassageEditingPanel() {
-		buildTop();
-	}
-	
-	public PassageEditingPanel(Passage passage) {
-		this.passage = passage;
-		
 		buildTop();
 	}
 	
@@ -185,13 +180,53 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 		
 		switch (clicked.getName()) {
 			case "deleteFragment":
+				FragmentEditingPanel fragmentToBeDeleted = (FragmentEditingPanel) clicked.getParent().getParent();
+				
+				Point posFragmentToBeDeleted = new Point(fragmentToBeDeleted.getX(), fragmentToBeDeleted.getY());
+				
+				boolean isLast = posFragmentToBeDeleted.y == fragmentHolder.getHeight() - 100;
+				
+				fragmentHolder.remove(fragmentToBeDeleted);
+				
+				if(!isLast) {
+					for (int i = 0; i < fragmentHolder.getComponentCount(); i++) {
+						if (fragmentHolder.getComponent(i).getY() > posFragmentToBeDeleted.y) {
+							fragmentHolder.getComponent(i).setLocation(fragmentHolder.getComponent(i).getX(), fragmentHolder.getComponent(i).getY() - 100);
+						}
+					}
+				}
+				
+				update();
 				
 				break;
 			case "upFragment":
+				FragmentEditingPanel fragmentGoingUp = (FragmentEditingPanel) clicked.getParent().getParent();
+				
+				if (fragmentGoingUp.getY() == 0) {
+					return;
+				}
+				
+				Point posFragmentGoingUp = new Point(fragmentGoingUp.getX(), fragmentGoingUp.getY());
+				
+				FragmentEditingPanel upperFep = (FragmentEditingPanel) fragmentHolder.getComponentAt(posFragmentGoingUp.x, posFragmentGoingUp.y-100);
+				
+				fragmentGoingUp.setLocation(upperFep.getLocation());
+				upperFep.setLocation(posFragmentGoingUp);
 				
 				break;
 			case "downFragment":
+				FragmentEditingPanel fragmentGoingDown = (FragmentEditingPanel) clicked.getParent().getParent();
 				
+				if (fragmentGoingDown.getY() == fragmentHolder.getHeight() - 100) {
+					return;
+				}
+				
+				Point posFragmentGoingDown = new Point(fragmentGoingDown.getX(), fragmentGoingDown.getY());
+				
+				FragmentEditingPanel lowerFep = (FragmentEditingPanel) fragmentHolder.getComponentAt(posFragmentGoingDown.x, posFragmentGoingDown.y+100);
+				
+				fragmentGoingDown.setLocation(lowerFep.getLocation());
+				lowerFep.setLocation(posFragmentGoingDown);
 				break;
 			case "editFragment":
 				for (int i = 0; i < fragmentHolder.getComponentCount(); i++) {
@@ -234,13 +269,13 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 				break;
 			case "editFinish":
 				passage.setId(Integer.parseInt(txId.getText()));
-				passage.setName("\""+txNome.getText()+"\"");
+				passage.setName(txNome.getText());
 				
 				ArrayList<String> text = new ArrayList<String>();
 				
 				for (int i = 0; i < fragmentHolder.getComponentCount(); i++) {
 					if (!((FragmentEditingPanel)fragmentHolder.getComponent(i)).getFragmentField().getText().isEmpty()) {						
-						text.add("\""+((FragmentEditingPanel)fragmentHolder.getComponent(i)).getFragmentField().getText()+"\"");
+						text.add(((FragmentEditingPanel)fragmentHolder.getComponent(i)).getFragmentField().getText());
 					}
 				}
 				
@@ -254,11 +289,76 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 					}
 				}
 				
-				System.out.println(passage.toString());
+				insertIntoMainList();
 				break;
 			default:
 				break;
 		}
+	}
+
+	private void insertIntoMainList() {
+		boolean found = false;
+		
+		for (int i = 0; i < MainPanel.passageList.size(); i++) {
+			if (MainPanel.passageList.get(i).getId() == passage.getId()) {
+				MainPanel.passageList.get(i).setName(passage.getName());
+				MainPanel.passageList.get(i).setText(passage.getText());
+				MainPanel.passageList.get(i).setLinks(passage.getLinks());
+				
+				found = true;
+			}
+		}
+		
+		if (!found) {
+			MainPanel.passageList.addElement(passage);
+		}
+		
+		checkLinks();
+	}
+
+	private void checkLinks() {
+		for (int i = 0; i < passage.getLinks().size(); i++) {
+			boolean found = false;
+			
+			for (int j = 0; j < MainPanel.passageList.size(); j++) {
+				if (MainPanel.passageList.get(j).getId() == passage.getLinks().get(i).getId()) {
+					found = true;
+					break;
+				}
+			}
+			
+			if (!found) {
+				MainPanel.passageList.addElement(new Passage(passage.getLinks().get(i).getId(), passage.getLinks().get(i).getText()));
+			}
+		}
+		
+		setPassage(new Passage());
+	}
+	
+	public void setPassage(Passage passage) {
+		removeAll();
+		
+		Passage passageTemp = new Passage();
+		
+		passageTemp.setId(passage.getId());
+		passageTemp.setName(passage.getName());
+		
+		for(int i = 0; i < passage.getText().size(); i++) {
+			passageTemp.getText().add(passage.getText().get(i));
+		}
+		
+		for(int i = 0; i < passage.getLinks().size(); i++) {
+			Link link = new Link();
+			
+			link.setId(passage.getLinks().get(i).getId());
+			link.setText(passage.getLinks().get(i).getText());
+			
+			passageTemp.getLinks().add(link);
+		}
+		
+		this.passage = passageTemp;
+		
+		buildTop();
 	}
 
 	@Override
