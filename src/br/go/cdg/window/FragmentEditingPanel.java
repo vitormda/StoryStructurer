@@ -167,6 +167,8 @@ public class FragmentEditingPanel extends JPanel implements ActionListener, KeyL
 			odin = (JPanel) getParent().getParent().getParent().getParent().getParent();
 		}
 		
+		System.out.println(fragmentField.getText());
+		
 		JButton clicked = (JButton)ae.getSource();
 		
 		switch (clicked.getName()) {

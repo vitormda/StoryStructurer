@@ -1,13 +1,17 @@
 package br.go.cdg.window;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,8 +38,8 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 	private JTextField txId;
 	
 	private PassageHolder passageHolder;
-	private JPanel fragmentHolder;
-	private JPanel hookHolder;
+	private PassageHolder fragmentHolder;
+	private PassageHolder hookHolder;
 	
 	private JScrollPane scrollPane;
 	
@@ -71,12 +75,25 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 		
 		txNome = new JTextField();
 		txNome.setText(passage.getName());
-		txNome.setBounds(150, 5, 435, 20);
+		txNome.setBounds(150, 5, 415, 20);
+
+		JButton okButton = new JButton();
+		Image okImg;
+		try {
+			okImg = ImageIO.read(getClass().getResource("/img/accept.png"));
+			okButton.setIcon(new ImageIcon(okImg));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		okButton.setName("editFinish");
+		okButton.setBounds(567, 5, 18, 18);
+		okButton.addActionListener(this);
 		
 		add(labelId);
 		add(txId);
 		add(labelNome);
 		add(txNome);
+		add(okButton);
 		
 		buildScrollArea();
 	}
@@ -88,7 +105,7 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 		fragmentHolder.setLayout(null);
 		fragmentHolder.setBackground(Color.GREEN);
 		
-		hookHolder = new JPanel();
+		hookHolder = new PassageHolder();
 		hookHolder.setLayout(null);
 		hookHolder.setBackground(Color.BLUE);
 		
@@ -166,6 +183,22 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 						frag.refreshEdit();
 					}
 				}
+				break;
+			case "editFinish":
+				passage.setId(Integer.parseInt(txId.getText()));
+				passage.setName(txNome.getText());
+				
+				ArrayList<String> text = new ArrayList<String>();
+				
+				for (int i = 0; i < fragmentHolder.getComponentCount(); i++) {
+					if (!((FragmentEditingPanel)fragmentHolder.getComponent(i)).getFragmentField().getText().isEmpty()) {						
+						text.add(((FragmentEditingPanel)fragmentHolder.getComponent(i)).getFragmentField().getText());
+					}
+				}
+				
+				passage.setText(text);
+				
+				System.out.println(passage.toString());
 				break;
 			default:
 				break;
