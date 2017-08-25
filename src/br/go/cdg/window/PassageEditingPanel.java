@@ -398,8 +398,9 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 
 	@Override
 	public void keyTyped(KeyEvent ke) {
-		
-		addNewFragment("");
+		if (ke.getKeyChar() == '\n') {
+			addNewFragment("");
+		}
 		
 		return;
 	}

@@ -7,13 +7,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -37,15 +35,11 @@ public class Window extends JFrame implements ActionListener {
 	
 	private MainPanel main;
 	private MenuBar menu;
-	
-	private String title;
 
 	public Window(String title) {
 		super(title);
 		
 		window = getClass();
-		
-		this.title = title;
 		
 		setSize(800, 600);
 		setResizable(false);
@@ -112,7 +106,7 @@ public class Window extends JFrame implements ActionListener {
 					MainPanel.passageList.addElement(pass);
 				}
 			} catch (Exception e) {
-				System.out.println(e.getMessage());
+				System.out.println(e);
 			}
 		}
 	}
@@ -143,12 +137,8 @@ public class Window extends JFrame implements ActionListener {
 			
 			File file = new File(fileName);
 			
-			FileWriter fileWriter;
-			
 			try {
-				fileWriter = new FileWriter(file, true);
-				
-				BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+				BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
 				
 				bufferedWriter.write(json);
 				bufferedWriter.flush();
