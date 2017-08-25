@@ -27,6 +27,9 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 	
 	private static final long serialVersionUID = -5459688383379831692L;
 	
+	private static final int FRAGMENT_HEIGHT = 100;
+	private static final int HOOK_HEIGHT = 24;
+	
 	private Passage passage = new Passage();
 	
 	private JTextField txNome;
@@ -46,31 +49,37 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 		buildTop();
 	}
 	
+	public PassageEditingPanel(Passage passage) {
+		this.passage = passage;
+		
+		buildTop();
+	}
+	
 	private void buildTop() {
 		setLayout(null);
 		
-		addKeyListener(this);
+		//addKeyListener(this);
 		
 		setBorder(BorderFactory.createEtchedBorder());
 		
 		JLabel labelId = new JLabel("Id: ");
-		labelId.setBounds(5, 5, 20, 20);
+		labelId.setBounds(2, 2, 20, 20);
 		
 		txId = new JTextField();
 		txId.setText(String.valueOf(passage.getId()));
-		txId.setBounds(25, 5, 30, 20);
+		txId.setBounds(25, 2, 30, 20);
 		
 		
 		JLabel labelNome = new JLabel("Passagem: ");
-		labelNome.setBounds(75, 5, 75, 20);
+		labelNome.setBounds(75, 2, 75, 20);
 		
 		txNome = new JTextField();
 		txNome.setText(passage.getName());
-		txNome.setBounds(150, 5, 415, 20);
+		txNome.setBounds(150, 2, 415, 20);
 
 		JButton okButton = ButtonGenerator.getAcceptButton();
 		okButton.setName("editFinish");
-		okButton.setBounds(567, 5, 18, 18);
+		okButton.setBounds(567, 2, 18, 18);
 		okButton.addActionListener(this);
 		
 		add(labelId);
@@ -137,7 +146,7 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 			frag = new FragmentEditingPanel(this, fragment);
 		}
 		
-		frag.setBounds(0, (fragmentHolder.getComponentCount()*100), 565, 100);
+		frag.setBounds(0, (fragmentHolder.getComponentCount() * FRAGMENT_HEIGHT), 565, FRAGMENT_HEIGHT);
 		
 		fragmentHolder.add(frag);
 		
@@ -155,7 +164,7 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 			hook = new HookEditingPanel(this, link);
 		}
 		
-		hook.setBounds(0, (hookHolder.getComponentCount()*24), 565, 24);
+		hook.setBounds(0, (hookHolder.getComponentCount() * HOOK_HEIGHT), 565, HOOK_HEIGHT);
 		
 		hookHolder.add(hook);
 		
@@ -163,8 +172,8 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 	}
 	
 	private void update() {
-		fragmentHolder.setBounds(0, 0, fragmentComponentWidth, fragmentHolder.getComponentCount()*100);
-		hookHolder.setBounds(0, fragmentHolder.getHeight(), fragmentComponentWidth, hookHolder.getComponentCount()*24);
+		fragmentHolder.setBounds(0, 0, fragmentComponentWidth, fragmentHolder.getComponentCount() * FRAGMENT_HEIGHT);
+		hookHolder.setBounds(0, fragmentHolder.getHeight(), fragmentComponentWidth, hookHolder.getComponentCount() * HOOK_HEIGHT);
 		addHook.setBounds(0, fragmentHolder.getHeight() + hookHolder.getHeight(), fragmentComponentWidth, 18);
 		passageHolder.setBounds(0, 0, fragmentComponentWidth, addHook.getY() + addHook.getHeight() + 40);
 		
@@ -180,18 +189,22 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 		
 		switch (clicked.getName()) {
 			case "deleteFragment":
+				if (fragmentHolder.getComponentCount() == 1) {
+					return;
+				}
+				
 				FragmentEditingPanel fragmentToBeDeleted = (FragmentEditingPanel) clicked.getParent().getParent();
 				
 				Point posFragmentToBeDeleted = new Point(fragmentToBeDeleted.getX(), fragmentToBeDeleted.getY());
 				
-				boolean isLast = posFragmentToBeDeleted.y == fragmentHolder.getHeight() - 100;
+				boolean isLastFrag = posFragmentToBeDeleted.y == fragmentHolder.getHeight() - FRAGMENT_HEIGHT;
 				
 				fragmentHolder.remove(fragmentToBeDeleted);
 				
-				if(!isLast) {
+				if(!isLastFrag) {
 					for (int i = 0; i < fragmentHolder.getComponentCount(); i++) {
 						if (fragmentHolder.getComponent(i).getY() > posFragmentToBeDeleted.y) {
-							fragmentHolder.getComponent(i).setLocation(fragmentHolder.getComponent(i).getX(), fragmentHolder.getComponent(i).getY() - 100);
+							fragmentHolder.getComponent(i).setLocation(fragmentHolder.getComponent(i).getX(), fragmentHolder.getComponent(i).getY() - FRAGMENT_HEIGHT);
 						}
 					}
 				}
@@ -208,7 +221,7 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 				
 				Point posFragmentGoingUp = new Point(fragmentGoingUp.getX(), fragmentGoingUp.getY());
 				
-				FragmentEditingPanel upperFep = (FragmentEditingPanel) fragmentHolder.getComponentAt(posFragmentGoingUp.x, posFragmentGoingUp.y-100);
+				FragmentEditingPanel upperFep = (FragmentEditingPanel) fragmentHolder.getComponentAt(posFragmentGoingUp.x, posFragmentGoingUp.y - FRAGMENT_HEIGHT);
 				
 				fragmentGoingUp.setLocation(upperFep.getLocation());
 				upperFep.setLocation(posFragmentGoingUp);
@@ -217,13 +230,13 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 			case "downFragment":
 				FragmentEditingPanel fragmentGoingDown = (FragmentEditingPanel) clicked.getParent().getParent();
 				
-				if (fragmentGoingDown.getY() == fragmentHolder.getHeight() - 100) {
+				if (fragmentGoingDown.getY() == fragmentHolder.getHeight() - FRAGMENT_HEIGHT) {
 					return;
 				}
 				
 				Point posFragmentGoingDown = new Point(fragmentGoingDown.getX(), fragmentGoingDown.getY());
 				
-				FragmentEditingPanel lowerFep = (FragmentEditingPanel) fragmentHolder.getComponentAt(posFragmentGoingDown.x, posFragmentGoingDown.y+100);
+				FragmentEditingPanel lowerFep = (FragmentEditingPanel) fragmentHolder.getComponentAt(posFragmentGoingDown.x, posFragmentGoingDown.y + FRAGMENT_HEIGHT);
 				
 				fragmentGoingDown.setLocation(lowerFep.getLocation());
 				lowerFep.setLocation(posFragmentGoingDown);
@@ -247,14 +260,6 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 				}
 				addNewHook(new Link());
 				break;
-			case "cancelHook":
-				JPanel container = (JPanel) clicked.getParent().getParent();
-				
-				hookHolder.remove(container);
-				
-				update();
-				
-				break;
 			case "editHook":
 				for (int i = 0; i < hookHolder.getComponentCount(); i++) {
 					HookEditingPanel hook = (HookEditingPanel) hookHolder.getComponent(i);
@@ -265,6 +270,23 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 				}
 				break;
 			case "deleteHook":
+				HookEditingPanel hookToBeDeleted = (HookEditingPanel) clicked.getParent().getParent();
+				
+				Point postHookToBeDeleted = new Point(hookToBeDeleted.getX(), hookToBeDeleted.getY());
+				
+				boolean isLastHook = postHookToBeDeleted.y == hookHolder.getHeight() - HOOK_HEIGHT;
+				
+				hookHolder.remove(hookToBeDeleted);
+				
+				if (!isLastHook) {
+					for (int i = 0; i < hookHolder.getComponentCount(); i++) {
+						if (hookHolder.getComponent(i).getY() > postHookToBeDeleted.y) {
+							hookHolder.getComponent(i).setLocation(hookHolder.getComponent(i).getX(), hookHolder.getComponent(i).getY() - HOOK_HEIGHT);
+						}
+					}
+				}
+				
+				update();
 				
 				break;
 			case "editFinish":
@@ -274,8 +296,10 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 				ArrayList<String> text = new ArrayList<String>();
 				
 				for (int i = 0; i < fragmentHolder.getComponentCount(); i++) {
-					if (!((FragmentEditingPanel)fragmentHolder.getComponent(i)).getFragmentField().getText().isEmpty()) {						
-						text.add(((FragmentEditingPanel)fragmentHolder.getComponent(i)).getFragmentField().getText());
+					FragmentEditingPanel fragment = (FragmentEditingPanel)fragmentHolder.getComponentAt(0, i * FRAGMENT_HEIGHT);
+					
+					if (!fragment.getFragmentField().getText().isEmpty()) {						
+						text.add(fragment.getFragmentField().getText());
 					}
 				}
 				
@@ -336,6 +360,7 @@ public class PassageEditingPanel extends JPanel implements ActionListener, KeyLi
 	}
 	
 	public void setPassage(Passage passage) {
+		
 		removeAll();
 		
 		Passage passageTemp = new Passage();

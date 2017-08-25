@@ -70,6 +70,7 @@ public class FragmentEditingPanel extends JPanel implements ActionListener, KeyL
 		fragmentField.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		fragmentField.setLineWrap(true);
 		fragmentField.addKeyListener(this);
+		fragmentField.addKeyListener(passageEditingPanel);
 		
 		labelText = new JLabel();
 		labelText.setPreferredSize(new Dimension(500, 70));

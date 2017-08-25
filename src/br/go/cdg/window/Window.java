@@ -3,12 +3,28 @@ package br.go.cdg.window;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import br.go.cdg.model.Passage;
 import br.go.cdg.utils.Globals;
 
 /**
@@ -36,7 +52,7 @@ public class Window extends JFrame implements ActionListener {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		
-		menu = new MenuBar();
+		menu = new MenuBar(this);
 		
 		main = new MainPanel();
 		
@@ -50,16 +66,10 @@ public class Window extends JFrame implements ActionListener {
 		
 		switch(pressed.getName()) {
 			case Globals.ACTION_NEW_STORY:
-				setTitle(this.title.concat(" - Renovando"));
-				//if (newHero()) {
-					setTitle(this.title);
-				//}
+				newStory();
 				break;
 			case Globals.ACTION_OPEN:
-				setTitle(this.title.concat(" - Abrindo"));
-				//if (open()) {
-					setTitle(this.title);
-				//}
+				open();
 				break;
 			case Globals.ACTION_SAVE:
 				save();
@@ -71,21 +81,82 @@ public class Window extends JFrame implements ActionListener {
 				break;
 		}
 	}
+
+	private void newStory() {
+		
+	}
 	
-	private void save() {
-		//String name = main.getTitlePanel().getTextStoryName().getText();
+	private void open() {
 		
-		String json = "{";
+		JFileChooser fileChooser = new JFileChooser();
 		
-		/*for (int i = 0; i < main.getPassageList().getSize(); i++) {			
-			json.concat(main.getPassageList().getElementAt(i).toString());
+		int option = fileChooser.showOpenDialog(this);
+		
+		if (option == JFileChooser.APPROVE_OPTION) {
+			File file = fileChooser.getSelectedFile();
 			
-			if (i != main.getPassageList().getSize() - 1) {
-				json.concat(", ");
+			main.getTitlePanel().getTextStoryName().setText(file.getName().replaceAll(".json", ""));
+			
+			try {
+				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+				
+				JSONParser jsonp = new JSONParser();
+				
+				JSONObject jsono = (JSONObject) jsonp.parse(br);
+				
+				JSONArray jsona = (JSONArray) jsono.get("passages");
+				
+				for (int i = 0; i < jsona.size(); i++) {
+					Passage pass = new Passage((JSONObject) jsona.get(i));
+					
+					MainPanel.passageList.addElement(pass);
+				}
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
 			}
-		}*/
+		}
+	}
+
+	private void save() {
+		String name = main.getTitlePanel().getTextStoryName().getText();
 		
-		json.concat("}");
+		String json = "{ \"passages\" : [";
+		
+		for (int i = 0; i < MainPanel.passageList.getSize(); i++) {			
+			json = json.concat(MainPanel.passageList.getElementAt(i).getJson());
+			
+			if (i != MainPanel.passageList.getSize() - 1) {
+				json = json.concat(", ");
+			}
+		}
+		
+		json = json.concat("]}");
+		
+		JFileChooser fileChooser = new JFileChooser();
+		
+		int option = fileChooser.showSaveDialog(this);
+		
+		if (option == JFileChooser.APPROVE_OPTION) {
+			File tempFile = fileChooser.getSelectedFile();
+			
+			String fileName = tempFile.getPath().replaceAll(tempFile.getName(), "").concat(name).concat(".json");
+			
+			File file = new File(fileName);
+			
+			FileWriter fileWriter;
+			
+			try {
+				fileWriter = new FileWriter(file, true);
+				
+				BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+				
+				bufferedWriter.write(json);
+				bufferedWriter.flush();
+				bufferedWriter.close();
+			} catch(Exception e) {
+				System.out.println(e);
+			}
+		}
 	}
 
 	private void exit() {

@@ -1,5 +1,7 @@
 package br.go.cdg.model;
 
+import org.json.simple.JSONObject;
+
 /**
  * @author vitor.almeida
  */
@@ -10,7 +12,13 @@ public class Link {
 
     public Link(){}
 
-    public int getId() {
+    public Link(JSONObject jsonLink) {
+    	this.id = ((Long)jsonLink.get("id")).intValue();
+    	this.text = (String)jsonLink.get("text");
+    	this.clicked = (boolean)jsonLink.get("clicked");
+	}
+
+	public int getId() {
         return id;
     }
 
@@ -36,6 +44,6 @@ public class Link {
     
     @Override
     public String toString() {
-    	return "{id: "+id+", text: \""+text+"\", clicked: false}";
+    	return "{\"id\": "+id+", \"text\": \""+text+"\", \"clicked\": false}";
     }
 }

@@ -43,7 +43,14 @@ public class MainPanel extends JPanel implements ListSelectionListener {
 			
 			Passage selected = (Passage)list.getSelectedValue();
 			
-			passageEditingPanel.setPassage(selected);
+			this.remove(passageEditingPanel);
+			
+			passageEditingPanel = new PassageEditingPanel(selected);
+			
+			this.add(passageEditingPanel, BorderLayout.CENTER);
+			
+			revalidate();
+			repaint();
 		}
 	}
 

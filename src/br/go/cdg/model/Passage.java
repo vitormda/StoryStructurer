@@ -2,6 +2,9 @@ package br.go.cdg.model;
 
 import java.util.ArrayList;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 /**
  * @author vitor.almeida
  */
@@ -9,7 +12,7 @@ import java.util.ArrayList;
 public class Passage {
     private String name = "";
     private int id = 0;
-    private boolean current = true;
+    private boolean current = false;
     
     private ArrayList<String> text = new ArrayList<String>();
     private ArrayList<Link> links = new ArrayList<Link>();
@@ -19,6 +22,21 @@ public class Passage {
     public Passage(int id, String name) {
     	this.id = id;
     	this.name = name;
+    }
+    
+    public Passage(JSONObject jsonPassage) {
+    	this.id = ((Long)jsonPassage.get("id")).intValue();
+    	this.name = (String)jsonPassage.get("name");
+    	
+    	JSONArray jsonTexts = (JSONArray) jsonPassage.get("fragments");
+    	for (Object jsonText : jsonTexts) {
+    		this.text.add((String) jsonText);
+    	}
+    	
+    	JSONArray jsonLinks = (JSONArray) jsonPassage.get("links");
+    	for (Object jsonLink : jsonLinks) {
+    		this.links.add(new Link((JSONObject) jsonLink));
+    	}
     }
 
     public String getName() {
@@ -62,7 +80,7 @@ public class Passage {
     }
     
     public String getJson() {
-    	String passage = "{ name: \""+ name +"\", id: "+ id +", fragments: [";
+    	String passage = "{ \"name\": \""+ name +"\", \"id\": "+ id +", \"fragments\": [";
     	
     	for (int i = 0; i < text.size(); i++) {
     		passage = passage.concat("\""+text.get(i)+"\"");
@@ -72,7 +90,7 @@ public class Passage {
     		}
     	}
     	
-    	passage = passage.concat("], links: [");
+    	passage = passage.concat("], \"links\": [");
     	
     	for (int i = 0; i < links.size(); i++) {
     		passage = passage.concat(links.get(i).toString());
@@ -82,7 +100,9 @@ public class Passage {
     		}
     	}
     	
-    	passage = passage.concat("]}");
+    	passage = passage.concat("], \"current\": "+current);
+    	
+    	passage = passage.concat("}");
     	
     	return passage;
     }

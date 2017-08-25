@@ -16,8 +16,12 @@ public class MenuBar extends JMenuBar {
 	private JMenuItem save;
 	private JMenuItem exit;
 	
-	public MenuBar() {
+	private Window window;
+	
+	public MenuBar(Window window) {
 		super();
+		
+		this.window = window;
 		
 		getMenu().add(getNewHero());
 		getMenu().add(getOpen());
@@ -44,6 +48,7 @@ public class MenuBar extends JMenuBar {
 			newHero = new JMenuItem();
 			newHero.setName(Globals.ACTION_NEW_STORY);
 			newHero.setText("Novo");
+			newHero.addActionListener(window);
 		}
 		return newHero;
 	}
@@ -57,6 +62,7 @@ public class MenuBar extends JMenuBar {
 			open = new JMenuItem();
 			open.setName(Globals.ACTION_OPEN);
 			open.setText("Abrir");
+			open.addActionListener(window);
 		}
 		return open;
 	}
@@ -70,6 +76,7 @@ public class MenuBar extends JMenuBar {
 			save = new JMenuItem();
 			save.setName(Globals.ACTION_SAVE);
 			save.setText("Salvar");
+			save.addActionListener(window);
 		}
 		return save;
 	}
@@ -83,6 +90,7 @@ public class MenuBar extends JMenuBar {
 			exit = new JMenuItem();
 			exit.setName(Globals.ACTION_EXIT);
 			exit.setText("Sair");
+			exit.addActionListener(window);
 		}
 		return exit;
 	}

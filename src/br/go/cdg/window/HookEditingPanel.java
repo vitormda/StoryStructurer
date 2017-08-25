@@ -71,7 +71,7 @@ public class HookEditingPanel extends PassageHolder implements ActionListener {
 		
 		JButton cancelButton = ButtonGenerator.getCancelButton();
 		cancelButton.setBounds(19, 0, 18, 18);
-		cancelButton.setName("cancelHook");
+		cancelButton.setName("deleteHook");
 		cancelButton.addActionListener(passageEditingPanel);
 		
 		JButton editButton = ButtonGenerator.getEditButton();
